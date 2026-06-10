@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="SquadMatch.Api/SquadMatch.Api.csproj" />
+  <Project Path="SquadMatch.Application/SquadMatch.Application.csproj" />
+  <Project Path="SquadMatch.Domain/SquadMatch.Domain.csproj" />
+  <Project Path="SquadMatch.Infrastructure/SquadMatch.Infrastructure.csproj" />
+</Solution>

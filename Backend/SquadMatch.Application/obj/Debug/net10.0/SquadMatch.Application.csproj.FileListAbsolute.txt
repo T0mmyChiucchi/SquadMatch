@@ -1,0 +1,15 @@
+/Users/quake/Desktop/Antigravity - App/SquadMatch/Backend/SquadMatch.Application/obj/Debug/net10.0/SquadMatch.Application.csproj.AssemblyReference.cache
+/Users/quake/Desktop/Antigravity - App/SquadMatch/Backend/SquadMatch.Application/obj/Debug/net10.0/SquadMatch.Application.GeneratedMSBuildEditorConfig.editorconfig
+/Users/quake/Desktop/Antigravity - App/SquadMatch/Backend/SquadMatch.Application/obj/Debug/net10.0/SquadMatch.Application.AssemblyInfoInputs.cache
+/Users/quake/Desktop/Antigravity - App/SquadMatch/Backend/SquadMatch.Application/obj/Debug/net10.0/SquadMatch.Application.AssemblyInfo.cs
+/Users/quake/Desktop/Antigravity - App/SquadMatch/Backend/SquadMatch.Application/obj/Debug/net10.0/SquadMatch.Application.csproj.CoreCompileInputs.cache
+/Users/quake/Desktop/Antigravity - App/SquadMatch/Backend/SquadMatch.Application/bin/Debug/net10.0/SquadMatch.Application.deps.json
+/Users/quake/Desktop/Antigravity - App/SquadMatch/Backend/SquadMatch.Application/bin/Debug/net10.0/SquadMatch.Application.dll
+/Users/quake/Desktop/Antigravity - App/SquadMatch/Backend/SquadMatch.Application/bin/Debug/net10.0/SquadMatch.Application.pdb
+/Users/quake/Desktop/Antigravity - App/SquadMatch/Backend/SquadMatch.Application/bin/Debug/net10.0/SquadMatch.Domain.dll
+/Users/quake/Desktop/Antigravity - App/SquadMatch/Backend/SquadMatch.Application/bin/Debug/net10.0/SquadMatch.Domain.pdb
+/Users/quake/Desktop/Antigravity - App/SquadMatch/Backend/SquadMatch.Application/obj/Debug/net10.0/SquadMat.91CC083F.Up2Date
+/Users/quake/Desktop/Antigravity - App/SquadMatch/Backend/SquadMatch.Application/obj/Debug/net10.0/SquadMatch.Application.dll
+/Users/quake/Desktop/Antigravity - App/SquadMatch/Backend/SquadMatch.Application/obj/Debug/net10.0/refint/SquadMatch.Application.dll
+/Users/quake/Desktop/Antigravity - App/SquadMatch/Backend/SquadMatch.Application/obj/Debug/net10.0/SquadMatch.Application.pdb
+/Users/quake/Desktop/Antigravity - App/SquadMatch/Backend/SquadMatch.Application/obj/Debug/net10.0/ref/SquadMatch.Application.dll

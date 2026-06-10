@@ -1,0 +1,11 @@
+/Users/quake/Desktop/Antigravity - App/SquadMatch/Backend/SquadMatch.Domain/bin/Debug/net10.0/SquadMatch.Domain.deps.json
+/Users/quake/Desktop/Antigravity - App/SquadMatch/Backend/SquadMatch.Domain/bin/Debug/net10.0/SquadMatch.Domain.dll
+/Users/quake/Desktop/Antigravity - App/SquadMatch/Backend/SquadMatch.Domain/bin/Debug/net10.0/SquadMatch.Domain.pdb
+/Users/quake/Desktop/Antigravity - App/SquadMatch/Backend/SquadMatch.Domain/obj/Debug/net10.0/SquadMatch.Domain.GeneratedMSBuildEditorConfig.editorconfig
+/Users/quake/Desktop/Antigravity - App/SquadMatch/Backend/SquadMatch.Domain/obj/Debug/net10.0/SquadMatch.Domain.AssemblyInfoInputs.cache
+/Users/quake/Desktop/Antigravity - App/SquadMatch/Backend/SquadMatch.Domain/obj/Debug/net10.0/SquadMatch.Domain.AssemblyInfo.cs
+/Users/quake/Desktop/Antigravity - App/SquadMatch/Backend/SquadMatch.Domain/obj/Debug/net10.0/SquadMatch.Domain.csproj.CoreCompileInputs.cache
+/Users/quake/Desktop/Antigravity - App/SquadMatch/Backend/SquadMatch.Domain/obj/Debug/net10.0/SquadMatch.Domain.dll
+/Users/quake/Desktop/Antigravity - App/SquadMatch/Backend/SquadMatch.Domain/obj/Debug/net10.0/refint/SquadMatch.Domain.dll
+/Users/quake/Desktop/Antigravity - App/SquadMatch/Backend/SquadMatch.Domain/obj/Debug/net10.0/SquadMatch.Domain.pdb
+/Users/quake/Desktop/Antigravity - App/SquadMatch/Backend/SquadMatch.Domain/obj/Debug/net10.0/ref/SquadMatch.Domain.dll
