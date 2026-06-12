@@ -158,3 +158,4 @@
 /Users/quake/Desktop/Antigravity - App/SquadMatch/Backend/SquadMatch.Api/obj/Debug/net10.0/SquadMatch.Api.pdb
 /Users/quake/Desktop/Antigravity - App/SquadMatch/Backend/SquadMatch.Api/obj/Debug/net10.0/SquadMatch.Api.genruntimeconfig.cache
 /Users/quake/Desktop/Antigravity - App/SquadMatch/Backend/SquadMatch.Api/obj/Debug/net10.0/ref/SquadMatch.Api.dll
+/Users/quake/Desktop/Antigravity - App/SquadMatch/Backend/SquadMatch.Api/obj/Debug/net10.0/SquadMatch.Api.sourcelink.json

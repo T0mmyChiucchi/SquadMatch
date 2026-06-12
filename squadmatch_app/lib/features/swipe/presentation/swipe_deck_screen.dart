@@ -5,7 +5,9 @@ import '../../../core/network/signalr_client.dart';
 import '../../../domain/models/option.dart';
 import '../../../core/constants/api_constants.dart';
 import 'package:go_router/go_router.dart';
-import 'package:flutter/services.dart';
+import 'package:appinio_swiper/appinio_swiper.dart';
+import 'package:vibration/vibration.dart';
+import '../../../core/theme/app_theme.dart';
 
 class SwipeDeckScreen extends StatefulWidget {
   final String joinCode;
@@ -30,8 +32,8 @@ class _SwipeDeckScreenState extends State<SwipeDeckScreen> {
   bool _isLoading = true;
   String? _errorMessage;
   List<Option> _options = [];
-
-  int _currentIndex = 0;
+  bool _isWaiting = false;
+  final AppinioSwiperController _swiperController = AppinioSwiperController();
 
   @override
   void initState() {
@@ -80,17 +82,17 @@ class _SwipeDeckScreenState extends State<SwipeDeckScreen> {
     });
   }
 
-  Future<void> _castVote(bool isPositive) async {
-    if (_currentIndex >= _options.length) return;
+  Future<void> _castVote(int optionIndex, bool isPositive) async {
+    if (optionIndex >= _options.length) return;
 
-    final option = _options[_currentIndex];
+    final option = _options[optionIndex];
     
     try {
-      await SignalRClient.instance.castVote(widget.joinCode, widget.userId, option.id, isPositive);
+      if (await Vibration.hasVibrator() == true) {
+        Vibration.vibrate(duration: 30, amplitude: 128);
+      }
       
-      setState(() {
-        _currentIndex++;
-      });
+      await SignalRClient.instance.castVote(widget.joinCode, widget.userId, option.id, isPositive);
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -100,8 +102,25 @@ class _SwipeDeckScreenState extends State<SwipeDeckScreen> {
     }
   }
 
+  void _onSwipeEnd(int previousIndex, int targetIndex, SwiperActivity activity) {
+    if (activity is Swipe) {
+      bool isPositive = activity.direction == AxisDirection.right;
+      _castVote(previousIndex, isPositive);
+    }
+  }
+
+  void _triggerSwipeButton(bool isPositive) {
+    if (_isWaiting) return;
+    if (isPositive) {
+      _swiperController.swipeRight();
+    } else {
+      _swiperController.swipeLeft();
+    }
+  }
+
   @override
   void dispose() {
+    _swiperController.dispose();
     super.dispose();
   }
 
@@ -109,28 +128,33 @@ class _SwipeDeckScreenState extends State<SwipeDeckScreen> {
   Widget build(BuildContext context) {
 
     if (_isLoading) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
+      return Scaffold(
+        backgroundColor: AppTheme.background,
+        body: const Center(child: CircularProgressIndicator()),
       );
     }
 
     if (_errorMessage != null) {
       return Scaffold(
-        backgroundColor: Colors.deepPurple,
+        backgroundColor: AppTheme.background,
         body: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(Icons.error_outline, size: 80, color: Colors.white),
+              const Icon(Icons.error_outline, size: 80, color: AppTheme.buttonX),
               const SizedBox(height: 20),
               Text(
                 _errorMessage!,
-                style: const TextStyle(fontSize: 24, color: Colors.white),
+                style: const TextStyle(fontSize: 24, color: AppTheme.textPrimary),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 40),
               ElevatedButton(
                 onPressed: () => context.go('/'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppTheme.textPrimary,
+                  foregroundColor: Colors.white,
+                ),
                 child: const Text("Torna alla Home"),
               )
             ],
@@ -139,120 +163,166 @@ class _SwipeDeckScreenState extends State<SwipeDeckScreen> {
       );
     }
 
-    if (_currentIndex >= _options.length) {
-      return const Scaffold(
-        body: Center(child: Text("In attesa degli altri...", style: TextStyle(fontSize: 24))),
+    if (_isWaiting) {
+      return Scaffold(
+        backgroundColor: AppTheme.background,
+        body: const Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              CircularProgressIndicator(),
+              SizedBox(height: 24),
+              Text(
+                "In attesa degli altri...",
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AppTheme.textPrimary),
+              ),
+            ],
+          ),
+        ),
       );
     }
 
-    final currentOption = _options[_currentIndex];
-
     return Scaffold(
-      backgroundColor: Colors.grey[100],
+      backgroundColor: AppTheme.background,
       appBar: AppBar(
-        title: const Text('SquadMatch - Swipe!'),
-        actions: [
-          Center(
-            child: Padding(
-              padding: const EdgeInsets.only(right: 16.0),
-              child: InkWell(
-                onTap: () {
-                  Clipboard.setData(ClipboardData(text: widget.joinCode));
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Codice copiato negli appunti!')),
-                  );
-                },
-                borderRadius: BorderRadius.circular(8),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: Colors.deepPurpleAccent.withValues(alpha: 0.2),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        'Stanza: ${widget.joinCode}',
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                          color: Colors.deepPurple,
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      const Icon(Icons.copy, size: 18, color: Colors.deepPurple),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          )
-        ],
+        title: const Text('SquadMatch'),
+        centerTitle: true,
       ),
-      body: Center(
+      body: SafeArea(
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Container(
-              width: 300,
-              height: 400,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(20),
-                image: DecorationImage(
-                  image: NetworkImage(currentOption.imageUrl),
-                  fit: BoxFit.cover,
-                ),
-                boxShadow: const [BoxShadow(color: Colors.black26, blurRadius: 10, offset: Offset(0, 10))],
-              ),
-              alignment: Alignment.bottomCenter,
-              child: Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(16),
-                decoration: const BoxDecoration(
-                  color: Colors.black54,
-                  borderRadius: BorderRadius.only(bottomLeft: Radius.circular(20), bottomRight: Radius.circular(20)),
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      currentOption.title,
-                      style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold),
-                      textAlign: TextAlign.center,
-                    ),
-                    if (currentOption.description.isNotEmpty)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 8.0),
-                        child: Text(
-                          currentOption.description,
-                          style: const TextStyle(color: Colors.white70, fontSize: 14),
-                          textAlign: TextAlign.center,
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
+                child: AppinioSwiper(
+                  cardCount: _options.length,
+                  controller: _swiperController,
+                  onSwipeEnd: _onSwipeEnd,
+                  onEnd: () {
+                    setState(() {
+                      _isWaiting = true;
+                    });
+                  },
+                  cardBuilder: (BuildContext context, int index) {
+                    final currentOption = _options[index];
+                    return Container(
+                      decoration: BoxDecoration(
+                        color: AppTheme.cardBackground,
+                        borderRadius: BorderRadius.circular(32),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.05),
+                            blurRadius: 20,
+                            offset: const Offset(0, 10),
+                          ),
+                        ],
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(32),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            Expanded(
+                              flex: 3,
+                              child: Image.network(
+                                currentOption.imageUrl,
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) => Container(color: Colors.grey[200]),
+                              ),
+                            ),
+                            Expanded(
+                              flex: 1,
+                              child: Container(
+                                color: AppTheme.cardBackground,
+                                padding: const EdgeInsets.all(20),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      currentOption.title,
+                                      style: const TextStyle(
+                                        color: AppTheme.textPrimary,
+                                        fontSize: 28,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                    if (currentOption.description.isNotEmpty) ...[
+                                      const SizedBox(height: 8),
+                                      Flexible(
+                                        child: Text(
+                                          currentOption.description,
+                                          style: const TextStyle(
+                                            color: AppTheme.textSecondary,
+                                            fontSize: 16,
+                                          ),
+                                          maxLines: 2,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ),
+                                    ]
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                  ],
+                    );
+                  },
                 ),
               ),
             ),
-            const SizedBox(height: 40),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                FloatingActionButton(
-                  heroTag: "btn_no",
-                  backgroundColor: Colors.redAccent,
-                  onPressed: () => _castVote(false),
-                  child: const Icon(Icons.close, size: 30, color: Colors.white),
-                ),
-                FloatingActionButton(
-                  heroTag: "btn_yes",
-                  backgroundColor: Colors.greenAccent[700],
-                  onPressed: () => _castVote(true),
-                  child: const Icon(Icons.favorite, size: 30, color: Colors.white),
-                ),
-              ],
+            Padding(
+              padding: const EdgeInsets.only(bottom: 40.0, top: 16.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  _buildActionButton(
+                    icon: Icons.close_rounded,
+                    color: AppTheme.buttonX,
+                    onTap: () => _triggerSwipeButton(false),
+                  ),
+                  _buildActionButton(
+                    icon: Icons.favorite_rounded,
+                    color: AppTheme.buttonHeart,
+                    onTap: () => _triggerSwipeButton(true),
+                  ),
+                ],
+              ),
             )
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildActionButton({required IconData icon, required Color color, required VoidCallback onTap}) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        splashColor: color.withValues(alpha: 0.2),
+        highlightColor: color.withValues(alpha: 0.1),
+        customBorder: const CircleBorder(),
+        child: Container(
+          width: 80,
+          height: 80,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: Colors.white,
+            boxShadow: [
+              BoxShadow(
+                color: color.withValues(alpha: 0.2),
+                blurRadius: 15,
+                spreadRadius: 5,
+                offset: const Offset(0, 8),
+              ),
+            ],
+          ),
+          child: Icon(icon, size: 40, color: color),
         ),
       ),
     );

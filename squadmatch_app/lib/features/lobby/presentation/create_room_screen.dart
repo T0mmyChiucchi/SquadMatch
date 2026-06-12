@@ -7,6 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/services.dart';
 import '../../../core/constants/api_constants.dart';
 import '../../../core/utils/avatar_utils.dart';
+import '../../../core/theme/app_theme.dart';
 
 class CreateRoomScreen extends StatefulWidget {
   const CreateRoomScreen({super.key});
@@ -102,7 +103,7 @@ class _CreateRoomScreenState extends State<CreateRoomScreen> {
       children: [
         const Text(
           'Scegli il tuo Avatar',
-          style: TextStyle(color: Colors.white70, fontSize: 16),
+          style: TextStyle(color: AppTheme.textSecondary, fontSize: 16),
         ),
         const SizedBox(height: 10),
         SizedBox(
@@ -130,7 +131,7 @@ class _CreateRoomScreenState extends State<CreateRoomScreen> {
                   ),
                   child: CircleAvatar(
                     radius: 35,
-                    backgroundColor: Colors.white,
+                    backgroundColor: AppTheme.cardBackground,
                     child: ClipOval(
                       child: Image.network(
                         avatar,
@@ -152,29 +153,31 @@ class _CreateRoomScreenState extends State<CreateRoomScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.deepPurple,
+      backgroundColor: AppTheme.background,
       body: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(32.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(Icons.group_work, size: 80, color: Colors.white),
+              const Icon(Icons.group_work, size: 80, color: AppTheme.textPrimary),
               const SizedBox(height: 10),
               const Text(
                 'SquadMatch',
-                style: TextStyle(fontSize: 36, fontWeight: FontWeight.bold, color: Colors.white),
+                style: TextStyle(fontSize: 36, fontWeight: FontWeight.bold, color: AppTheme.textPrimary),
               ),
               const SizedBox(height: 30),
               _buildAvatarCarousel(),
               const SizedBox(height: 20),
               TextField(
                 controller: _nicknameController,
+                style: const TextStyle(color: AppTheme.textPrimary),
                 decoration: InputDecoration(
                   hintText: 'Il tuo Nickname',
+                  hintStyle: const TextStyle(color: AppTheme.textSecondary),
                   filled: true,
-                  fillColor: Colors.white,
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide.none),
+                  fillColor: AppTheme.cardBackground,
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
                 ),
               ),
               const SizedBox(height: 20),
@@ -184,21 +187,22 @@ class _CreateRoomScreenState extends State<CreateRoomScreen> {
                 child: ElevatedButton(
                   onPressed: _isLoading ? null : _createRoom,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.amberAccent,
-                    foregroundColor: Colors.black,
+                    backgroundColor: AppTheme.textPrimary,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                   ),
                   child: _isLoading 
-                    ? const CircularProgressIndicator() 
+                    ? const CircularProgressIndicator(color: Colors.white) 
                     : const Text('CREA STANZA', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                 ),
               ),
               const SizedBox(height: 30),
-              const Divider(color: Colors.white54),
+              const Divider(color: AppTheme.textSecondary),
               const SizedBox(height: 20),
               const Text(
                 'Oppure unisciti a una stanza esistente:',
                 textAlign: TextAlign.center,
-                style: TextStyle(color: Colors.white70),
+                style: TextStyle(color: AppTheme.textSecondary),
               ),
               const SizedBox(height: 10),
               TextField(
@@ -214,9 +218,10 @@ class _CreateRoomScreenState extends State<CreateRoomScreen> {
                 ],
                 decoration: InputDecoration(
                   hintText: 'Codice Stanza',
+                  hintStyle: const TextStyle(color: AppTheme.textSecondary),
                   filled: true,
-                  fillColor: Colors.white,
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide.none),
+                  fillColor: AppTheme.cardBackground,
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
                 ),
               ),
               const SizedBox(height: 10),
@@ -226,8 +231,9 @@ class _CreateRoomScreenState extends State<CreateRoomScreen> {
                 child: ElevatedButton(
                   onPressed: _joinRoom,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white,
-                    foregroundColor: Colors.deepPurple,
+                    backgroundColor: AppTheme.cardBackground,
+                    foregroundColor: AppTheme.textPrimary,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                   ),
                   child: const Text('UNISCITI', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                 ),

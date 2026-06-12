@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:http/http.dart' as http;
 import '../../../core/constants/api_constants.dart';
 import '../../../core/network/signalr_client.dart';
+import '../../../core/theme/app_theme.dart';
 
 class LobbyScreen extends StatefulWidget {
   final String joinCode;
@@ -127,18 +128,19 @@ class _LobbyScreenState extends State<LobbyScreen> {
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
-      return const Scaffold(
-        backgroundColor: Colors.deepPurple,
-        body: Center(child: CircularProgressIndicator(color: Colors.white)),
+      return Scaffold(
+        backgroundColor: AppTheme.background,
+        body: const Center(child: CircularProgressIndicator()),
       );
     }
 
     return Scaffold(
-      backgroundColor: Colors.deepPurple,
+      backgroundColor: AppTheme.background,
       appBar: AppBar(
-        title: const Text('Lobby', style: TextStyle(fontWeight: FontWeight.bold)),
+        title: const Text('Lobby', style: TextStyle(fontWeight: FontWeight.bold, color: AppTheme.textPrimary)),
         backgroundColor: Colors.transparent,
         elevation: 0,
+        iconTheme: const IconThemeData(color: AppTheme.textPrimary),
       ),
       body: Padding(
         padding: const EdgeInsets.all(24.0),
@@ -147,7 +149,7 @@ class _LobbyScreenState extends State<LobbyScreen> {
             Container(
               padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.2),
+                color: AppTheme.cardBackground,
                 borderRadius: BorderRadius.circular(16),
               ),
               child: Row(
@@ -155,15 +157,15 @@ class _LobbyScreenState extends State<LobbyScreen> {
                 children: [
                   const Text(
                     'Codice: ',
-                    style: TextStyle(fontSize: 24, color: Colors.white70),
+                    style: TextStyle(fontSize: 24, color: AppTheme.textSecondary),
                   ),
                   Text(
                     widget.joinCode,
-                    style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Colors.amberAccent),
+                    style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: AppTheme.buttonHeart),
                   ),
                   const SizedBox(width: 10),
                   IconButton(
-                    icon: const Icon(Icons.copy, color: Colors.white),
+                    icon: const Icon(Icons.copy, color: AppTheme.textPrimary),
                     onPressed: () {
                       Clipboard.setData(ClipboardData(text: widget.joinCode));
                       ScaffoldMessenger.of(context).showSnackBar(
@@ -177,7 +179,7 @@ class _LobbyScreenState extends State<LobbyScreen> {
             const SizedBox(height: 30),
             const Text(
               'Giocatori in attesa',
-              style: TextStyle(fontSize: 22, color: Colors.white, fontWeight: FontWeight.bold),
+              style: TextStyle(fontSize: 22, color: AppTheme.textPrimary, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 20),
             Expanded(
@@ -186,15 +188,17 @@ class _LobbyScreenState extends State<LobbyScreen> {
                 itemBuilder: (context, index) {
                   final u = _users[index];
                   return Card(
-                    color: Colors.white,
+                    color: AppTheme.cardBackground,
+                    elevation: 0,
                     margin: const EdgeInsets.only(bottom: 12),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                     child: ListTile(
                       leading: CircleAvatar(
-                        backgroundColor: Colors.grey[200],
+                        backgroundColor: AppTheme.background,
                         backgroundImage: NetworkImage(u['avatarUrl']),
                       ),
-                      title: Text(u['nickname'], style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.deepPurple)),
-                      trailing: u['isHost'] ? const Icon(Icons.star, color: Colors.amber) : null,
+                      title: Text(u['nickname'], style: const TextStyle(fontWeight: FontWeight.bold, color: AppTheme.textPrimary)),
+                      trailing: u['isHost'] ? const Icon(Icons.star, color: AppTheme.buttonHeart) : null,
                     ),
                   );
                 },
@@ -208,15 +212,16 @@ class _LobbyScreenState extends State<LobbyScreen> {
                 child: ElevatedButton(
                   onPressed: _users.length > 1 ? _startGame : null,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.amberAccent,
+                    backgroundColor: AppTheme.textPrimary,
                     disabledBackgroundColor: Colors.grey,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                   ),
                   child: Text(
                     _users.length > 1 ? 'AVVIA PARTITA' : 'IN ATTESA DI ALTRI...',
                     style: TextStyle(
                       fontSize: 18, 
                       fontWeight: FontWeight.bold, 
-                      color: _users.length > 1 ? Colors.black : Colors.white70
+                      color: _users.length > 1 ? Colors.white : Colors.white70
                     ),
                   ),
                 ),
@@ -225,7 +230,7 @@ class _LobbyScreenState extends State<LobbyScreen> {
               const Center(
                 child: Text(
                   'In attesa che l\'host avvii la partita...',
-                  style: TextStyle(color: Colors.white70, fontSize: 16, fontStyle: FontStyle.italic),
+                  style: TextStyle(color: AppTheme.textSecondary, fontSize: 16, fontStyle: FontStyle.italic),
                 ),
               )
           ],

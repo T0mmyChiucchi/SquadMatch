@@ -4,6 +4,7 @@ import 'features/lobby/presentation/create_room_screen.dart';
 import 'features/lobby/presentation/lobby_screen.dart';
 import 'features/swipe/presentation/swipe_deck_screen.dart';
 import 'features/swipe/presentation/results_screen.dart';
+import 'core/theme/app_theme.dart';
 
 void main() {
   runApp(const SquadMatchApp());
@@ -70,7 +71,6 @@ final GoRouter _router = GoRouter(
     ),
   ],
 );
-
 class SquadMatchApp extends StatelessWidget {
   const SquadMatchApp({super.key});
 
@@ -78,11 +78,9 @@ class SquadMatchApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp.router(
       title: 'SquadMatch',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
-      ),
+      theme: AppTheme.bentoTheme,
       routerConfig: _router,
+      debugShowCheckedModeBanner: false,
     );
   }
 }

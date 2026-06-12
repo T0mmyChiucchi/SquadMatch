@@ -17,3 +17,4 @@
 /Users/quake/Desktop/Antigravity - App/SquadMatch/Backend/SquadMatch.Infrastructure/obj/Debug/net10.0/SquadMatch.Infrastructure.pdb
 /Users/quake/Desktop/Antigravity - App/SquadMatch/Backend/SquadMatch.Infrastructure/obj/Debug/net10.0/SquadMatch.Infrastructure.genruntimeconfig.cache
 /Users/quake/Desktop/Antigravity - App/SquadMatch/Backend/SquadMatch.Infrastructure/obj/Debug/net10.0/ref/SquadMatch.Infrastructure.dll
+/Users/quake/Desktop/Antigravity - App/SquadMatch/Backend/SquadMatch.Infrastructure/obj/Debug/net10.0/SquadMatch.Infrastructure.sourcelink.json
