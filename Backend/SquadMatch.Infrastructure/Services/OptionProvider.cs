@@ -29,7 +29,7 @@ public class MockOptionProvider : IOptionProvider
         }}
     };
 
-    public Task<List<Option>> GetOptionsForCategoryAsync(RoomCategory category, Guid roomId)
+    public Task<List<Option>> GetOptionsForCategoryAsync(RoomCategory category, Guid roomId, double? latitude = null, double? longitude = null, string? filterQuery = null)
     {
         if (!_mockData.TryGetValue(category, out var items))
         {

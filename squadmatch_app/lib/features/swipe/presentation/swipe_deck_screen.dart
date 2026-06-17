@@ -34,6 +34,9 @@ class _SwipeDeckScreenState extends State<SwipeDeckScreen> {
   List<Option> _options = [];
   bool _isWaiting = false;
   final AppinioSwiperController _swiperController = AppinioSwiperController();
+  final Set<int> _votedIndices = {};
+  int _topCardIndex = 0;
+  int _votesCast = 0;
 
   @override
   void initState() {
@@ -84,7 +87,9 @@ class _SwipeDeckScreenState extends State<SwipeDeckScreen> {
 
   Future<void> _castVote(int optionIndex, bool isPositive) async {
     if (optionIndex >= _options.length) return;
-
+    if (_votedIndices.contains(optionIndex)) return;
+    
+    _votedIndices.add(optionIndex);
     final option = _options[optionIndex];
     
     try {
@@ -93,6 +98,15 @@ class _SwipeDeckScreenState extends State<SwipeDeckScreen> {
       }
       
       await SignalRClient.instance.castVote(widget.joinCode, widget.userId, option.id, isPositive);
+      
+      _votesCast++;
+      if (_votesCast >= _options.length) {
+        if (mounted) {
+          setState(() {
+            _isWaiting = true;
+          });
+        }
+      }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -106,11 +120,20 @@ class _SwipeDeckScreenState extends State<SwipeDeckScreen> {
     if (activity is Swipe) {
       bool isPositive = activity.direction == AxisDirection.right;
       _castVote(previousIndex, isPositive);
+      if (previousIndex >= _topCardIndex) {
+        _topCardIndex = previousIndex + 1;
+      }
     }
   }
 
   void _triggerSwipeButton(bool isPositive) {
-    if (_isWaiting) return;
+    if (_isWaiting || _topCardIndex >= _options.length) return;
+    
+    final currentIndex = _topCardIndex;
+    _topCardIndex++;
+    
+    _castVote(currentIndex, isPositive);
+
     if (isPositive) {
       _swiperController.swipeRight();
     } else {
@@ -163,25 +186,6 @@ class _SwipeDeckScreenState extends State<SwipeDeckScreen> {
       );
     }
 
-    if (_isWaiting) {
-      return Scaffold(
-        backgroundColor: AppTheme.background,
-        body: const Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              CircularProgressIndicator(),
-              SizedBox(height: 24),
-              Text(
-                "In attesa degli altri...",
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AppTheme.textPrimary),
-              ),
-            ],
-          ),
-        ),
-      );
-    }
-
     return Scaffold(
       backgroundColor: AppTheme.background,
       appBar: AppBar(
@@ -189,110 +193,126 @@ class _SwipeDeckScreenState extends State<SwipeDeckScreen> {
         centerTitle: true,
       ),
       body: SafeArea(
-        child: Column(
+        child: Stack(
           children: [
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
-                child: AppinioSwiper(
-                  cardCount: _options.length,
-                  controller: _swiperController,
-                  onSwipeEnd: _onSwipeEnd,
-                  onEnd: () {
-                    setState(() {
-                      _isWaiting = true;
-                    });
-                  },
-                  cardBuilder: (BuildContext context, int index) {
-                    final currentOption = _options[index];
-                    return Container(
-                      decoration: BoxDecoration(
-                        color: AppTheme.cardBackground,
-                        borderRadius: BorderRadius.circular(32),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.05),
-                            blurRadius: 20,
-                            offset: const Offset(0, 10),
-                          ),
-                        ],
-                      ),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(32),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            Expanded(
-                              flex: 3,
-                              child: Image.network(
-                                currentOption.imageUrl,
-                                fit: BoxFit.cover,
-                                errorBuilder: (context, error, stackTrace) => Container(color: Colors.grey[200]),
+            Column(
+              children: [
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
+                    child: AppinioSwiper(
+                      cardCount: _options.length,
+                      controller: _swiperController,
+                      onSwipeEnd: _onSwipeEnd,
+                      cardBuilder: (BuildContext context, int index) {
+                        final currentOption = _options[index];
+                        return Container(
+                          decoration: BoxDecoration(
+                            color: AppTheme.cardBackground,
+                            borderRadius: BorderRadius.circular(32),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.05),
+                                blurRadius: 20,
+                                offset: const Offset(0, 10),
                               ),
-                            ),
-                            Expanded(
-                              flex: 1,
-                              child: Container(
-                                color: AppTheme.cardBackground,
-                                padding: const EdgeInsets.all(20),
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      currentOption.title,
-                                      style: const TextStyle(
-                                        color: AppTheme.textPrimary,
-                                        fontSize: 28,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                    if (currentOption.description.isNotEmpty) ...[
-                                      const SizedBox(height: 8),
-                                      Flexible(
-                                        child: Text(
-                                          currentOption.description,
+                            ],
+                          ),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(32),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                Expanded(
+                                  flex: 3,
+                                  child: Image.network(
+                                    currentOption.imageUrl,
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (context, error, stackTrace) => Container(color: Colors.grey[200]),
+                                  ),
+                                ),
+                                Expanded(
+                                  flex: 1,
+                                  child: Container(
+                                    color: AppTheme.cardBackground,
+                                    padding: const EdgeInsets.all(20),
+                                    child: Column(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          currentOption.title,
                                           style: const TextStyle(
-                                            color: AppTheme.textSecondary,
-                                            fontSize: 16,
+                                            color: AppTheme.textPrimary,
+                                            fontSize: 28,
+                                            fontWeight: FontWeight.bold,
                                           ),
-                                          maxLines: 2,
+                                          maxLines: 1,
                                           overflow: TextOverflow.ellipsis,
                                         ),
-                                      ),
-                                    ]
-                                  ],
+                                        if (currentOption.description.isNotEmpty) ...[
+                                          const SizedBox(height: 8),
+                                          Flexible(
+                                            child: Text(
+                                              currentOption.description,
+                                              style: const TextStyle(
+                                                color: AppTheme.textSecondary,
+                                                fontSize: 16,
+                                              ),
+                                              maxLines: 2,
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                          ),
+                                        ]
+                                      ],
+                                    ),
+                                  ),
                                 ),
-                              ),
+                              ],
                             ),
-                          ],
-                        ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 40.0, top: 16.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      _buildActionButton(
+                        icon: Icons.close_rounded,
+                        color: AppTheme.buttonX,
+                        onTap: () => _triggerSwipeButton(false),
                       ),
-                    );
-                  },
+                      _buildActionButton(
+                        icon: Icons.favorite_rounded,
+                        color: AppTheme.buttonHeart,
+                        onTap: () => _triggerSwipeButton(true),
+                      ),
+                    ],
+                  ),
+                )
+              ],
+            ),
+            if (_isWaiting)
+              Container(
+                color: AppTheme.background,
+                child: const Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      CircularProgressIndicator(),
+                      SizedBox(height: 24),
+                      Text(
+                        "In attesa degli altri...",
+                        style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AppTheme.textPrimary),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(bottom: 40.0, top: 16.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  _buildActionButton(
-                    icon: Icons.close_rounded,
-                    color: AppTheme.buttonX,
-                    onTap: () => _triggerSwipeButton(false),
-                  ),
-                  _buildActionButton(
-                    icon: Icons.favorite_rounded,
-                    color: AppTheme.buttonHeart,
-                    onTap: () => _triggerSwipeButton(true),
-                  ),
-                ],
-              ),
-            )
           ],
         ),
       ),

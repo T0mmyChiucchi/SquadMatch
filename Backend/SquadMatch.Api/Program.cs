@@ -3,6 +3,7 @@ using SquadMatch.Application.Commands;
 using SquadMatch.Api.Hubs;
 using SquadMatch.Infrastructure.Data;
 using SquadMatch.Infrastructure.Repositories;
+using SquadMatch.Infrastructure.Configuration;
 
 using SquadMatch.Application.Interfaces;
 using SquadMatch.Infrastructure.Services;
@@ -31,7 +32,9 @@ builder.Services.AddScoped<MatchEngine>();
 builder.Services.AddScoped<IRoomRepository, RoomRepository>();
 builder.Services.AddScoped<IVoteRepository, VoteRepository>();
 
-builder.Services.AddScoped<IOptionProvider, MockOptionProvider>();
+builder.Services.Configure<ApiSettings>(builder.Configuration.GetSection("ApiSettings"));
+builder.Services.AddHttpClient();
+builder.Services.AddScoped<IOptionProvider, ApiOptionProvider>();
 
 var app = builder.Build();
 

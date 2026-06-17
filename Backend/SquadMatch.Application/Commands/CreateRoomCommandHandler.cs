@@ -50,7 +50,7 @@ public class CreateRoomCommandHandler : IRequestHandler<CreateRoomCommand, Room>
         room.Users.Add(hostUser);
 
         // Genera le opzioni e salvale nel DB per evitare FK constraint errors sui voti successivi
-        var options = await _optionProvider.GetOptionsForCategoryAsync(request.Category, room.Id);
+        var options = await _optionProvider.GetOptionsForCategoryAsync(request.Category, room.Id, request.Latitude, request.Longitude, request.FilterQuery);
         room.Options = options;
 
         await _roomRepository.AddAsync(room, cancellationToken);

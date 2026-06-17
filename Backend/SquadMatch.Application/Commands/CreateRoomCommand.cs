@@ -9,4 +9,7 @@ public record CreateRoomCommand(
     QuorumRule QuorumRule,
     string HostNickname,
     Guid HostUserId,
-    string HostAvatarUrl) : IRequest<Room>;
+    string HostAvatarUrl,
+    double? Latitude = null,
+    double? Longitude = null,
+    string? FilterQuery = null) : IRequest<Room>;

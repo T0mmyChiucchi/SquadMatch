@@ -8,6 +8,7 @@ import 'package:flutter/services.dart';
 import '../../../core/constants/api_constants.dart';
 import '../../../core/utils/avatar_utils.dart';
 import '../../../core/theme/app_theme.dart';
+import 'package:geolocator/geolocator.dart';
 
 class CreateRoomScreen extends StatefulWidget {
   const CreateRoomScreen({super.key});
@@ -22,6 +23,37 @@ class _CreateRoomScreenState extends State<CreateRoomScreen> {
   bool _isLoading = false;
   String? _userId;
   String _selectedAvatar = AvatarUtils.availableAvatars[0];
+  String _selectedCategory = 'Food';
+  String _selectedSubcategory = '';
+
+  final Map<String, List<Map<String, String>>> _subcategories = {
+    'Food': [
+      {'name': 'Qualsiasi', 'value': ''},
+      {'name': 'Italiano', 'value': 'Italian'},
+      {'name': 'Sushi', 'value': 'Sushi'},
+      {'name': 'Hamburger', 'value': 'Burger'},
+      {'name': 'Pizza', 'value': 'Pizza'},
+      {'name': 'Messicano', 'value': 'Mexican'},
+      {'name': 'Vegano', 'value': 'Vegan'},
+    ],
+    'Movies': [
+      {'name': 'Qualsiasi', 'value': ''},
+      {'name': 'Azione', 'value': '28'},
+      {'name': 'Commedia', 'value': '35'},
+      {'name': 'Horror', 'value': '27'},
+      {'name': 'Fantascienza', 'value': '878'},
+      {'name': 'Thriller', 'value': '53'},
+      {'name': 'Romance', 'value': '10749'},
+    ],
+    'Games': [
+      {'name': 'Qualsiasi', 'value': ''},
+      {'name': 'Azione', 'value': 'action'},
+      {'name': 'GDR (RPG)', 'value': 'role-playing-games-rpg'},
+      {'name': 'Sparatutto', 'value': 'shooter'},
+      {'name': 'Avventura', 'value': 'adventure'},
+      {'name': 'Indie', 'value': 'indie'},
+    ],
+  };
 
   @override
   void initState() {
@@ -48,16 +80,41 @@ class _CreateRoomScreenState extends State<CreateRoomScreen> {
 
     try {
       final userId = _userId!;
+      
+      double? lat;
+      double? lon;
+
+      if (_selectedCategory == 'Food') {
+        bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+        if (serviceEnabled) {
+          LocationPermission permission = await Geolocator.checkPermission();
+          if (permission == LocationPermission.denied) {
+            permission = await Geolocator.requestPermission();
+          }
+          if (permission == LocationPermission.whileInUse || permission == LocationPermission.always) {
+             try {
+                Position position = await Geolocator.getCurrentPosition();
+                lat = position.latitude;
+                lon = position.longitude;
+             } catch (e) {
+                print("Errore GPS: $e");
+             }
+          }
+        }
+      }
 
       final response = await http.post(
         Uri.parse(ApiConstants.roomsEndpoint),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
-          'Category': 'Food',
+          'Category': _selectedCategory,
           'QuorumRule': 'Unanimity',
           'HostNickname': _nicknameController.text.trim(),
           'HostUserId': userId,
-          'HostAvatarUrl': _selectedAvatar
+          'HostAvatarUrl': _selectedAvatar,
+          if (lat != null) 'Latitude': lat,
+          if (lon != null) 'Longitude': lon,
+          if (_selectedSubcategory.isNotEmpty) 'FilterQuery': _selectedSubcategory,
         }),
       );
 
@@ -178,6 +235,65 @@ class _CreateRoomScreenState extends State<CreateRoomScreen> {
                   filled: true,
                   fillColor: AppTheme.cardBackground,
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+                ),
+              ),
+              const SizedBox(height: 20),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                decoration: BoxDecoration(
+                  color: AppTheme.cardBackground,
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: DropdownButtonHideUnderline(
+                  child: DropdownButton<String>(
+                    value: _selectedCategory,
+                    isExpanded: true,
+                    dropdownColor: AppTheme.cardBackground,
+                    style: const TextStyle(color: AppTheme.textPrimary, fontSize: 16),
+                    icon: const Icon(Icons.arrow_drop_down, color: AppTheme.textPrimary),
+                    items: <String>['Food', 'Movies', 'Games']
+                        .map<DropdownMenuItem<String>>((String value) {
+                      return DropdownMenuItem<String>(
+                        value: value,
+                        child: Text(value),
+                      );
+                    }).toList(),
+                    onChanged: (String? newValue) {
+                      setState(() {
+                        _selectedCategory = newValue!;
+                        _selectedSubcategory = ''; // Reset subcategory on change
+                      });
+                    },
+                  ),
+                ),
+              ),
+              const SizedBox(height: 10),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                decoration: BoxDecoration(
+                  color: AppTheme.cardBackground,
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: DropdownButtonHideUnderline(
+                  child: DropdownButton<String>(
+                    value: _selectedSubcategory,
+                    isExpanded: true,
+                    dropdownColor: AppTheme.cardBackground,
+                    style: const TextStyle(color: AppTheme.textPrimary, fontSize: 16),
+                    icon: const Icon(Icons.filter_list, color: AppTheme.textPrimary),
+                    items: _subcategories[_selectedCategory]!
+                        .map<DropdownMenuItem<String>>((Map<String, String> item) {
+                      return DropdownMenuItem<String>(
+                        value: item['value'],
+                        child: Text(item['name']!),
+                      );
+                    }).toList(),
+                    onChanged: (String? newValue) {
+                      setState(() {
+                        _selectedSubcategory = newValue!;
+                      });
+                    },
+                  ),
                 ),
               ),
               const SizedBox(height: 20),
